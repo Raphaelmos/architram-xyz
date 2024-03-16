@@ -1,28 +1,39 @@
-FILES = srcs\main.c srcs\parse_file.c srcs\utils.c srcs\image_utils.c
-TARGET = main.exe
-FLAGS = -ISDL2/include -LSDL2/lib -O3
-COMPILFLAGS = -lmingw32 -lSDL2_image -lSDL2main -lSDL2_ttf -lSDL2 
-OBJS = ${FILES:.c=.o}
-CC = gcc
+# Target name
+TARGET = architram-xyz
 
-%.o: %.c
-	@echo "Generating $@"
-	@${CC} ${FLAGS} -c $< -o $@
+# C flags
+CXX = gcc
+CXXFLAGS = -Wall -Wextra 
 
-${TARGET}: ${OBJS}
-	@echo "generating executable"
-	@${CC} ${FLAGS} -o ${TARGET} ${OBJS} ${COMPILFLAGS}
+# Include directories
+INCLUDES = -Iinclude
 
-all: ${TARGET}
+# Libraries
+LIBS = -lSDL2 -lSDL2_image -lSDL2_ttf 
 
-clean:
-	@echo "Cleaning object files"
-	@del ${OBJS}
+# Source files
+SOURCES = srcs\main.c srcs\parse_file.c srcs\utils.c srcs\image_utils.c
 
-fclean: clean
-	@echo "Cleaning executable"
-	@del ${TARGET}
+# Object files
+OBJECTS = $(SOURCES:.c=.o) 
 
-re: fclean all
+# Build directory
+BUILDDIR = build
 
-.PHONY: fclean clean re all
+# Default build target
+all: $(BUILDDIR)/$(TARGET)
+
+$(BUILDDIR)/$(TARGET): $(OBJECTS)
+    @mkdir -p $(BUILDDIR)
+    $(CXX) $(OBJECTS) $(INCLUDES) $(LIBS) -o $(BUILDDIR)/$(TARGET)
+
+.c.o:
+    $(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+clean: 
+    rm -rf $(BUILDDIR)/*
+
+install: all
+    cp $(BUILDDIR)/$(TARGET) /usr/local/bin/
+
+.PHONY: clean
